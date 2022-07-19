@@ -10,24 +10,23 @@ representation. It has bindings for Python, Java and R.
 Spark's DataFrameAPI vs. (cloud) native SQL Interfaces
 ======================================================
 
-This article is intended for data analysts, scientists, engineers and related professions such as solution architects. It is an opiniated comparison between Spark's DataFrameAPI and cloud native SQL interfaces (e.g. Snowflake, Redshift, Athena and alike). It aims to outline benefits of Spark's DataFrameAPI in contrast to seemingly more easier to use cloud native SQL engines. By the end of the article, you will be challenged to think about why Spark's DataFrameAPI and native SQL interfaces are complementary and where each shines most.
+This article is intended for data analysts, scientists, engineers and related professions such as solution architects. It is an opiniated comparison between Spark's DataFrameAPI and cloud native SQL interfaces (e.g. Snowflake, Redshift, Athena and alike). It outlines benefits of Spark's DataFrameAPI in contrast to seemingly more easier to use cloud native SQL engines. By the end of the article, you will be challenged to think about why Spark's DataFrameAPI and native SQL interfaces are complementary.
 
 DataFrameAPI and SQL
 --------------------
 
-Let's first outline the relevant distinction between the DataFrameAPI and SQL interface. While both are used to express data processing logic, they differ in the way they formulate ETL/ELT task.
+Let's first focus on the relevant distinction between the DataFrameAPI and SQL interface. While both are used to express data processing logic, they differ in the way they formulate ETL/ELT tasks.
 
-SQL is probably one of the oldest languages with most widespread adoption in recent years due to the rise of big data in the 2020s. It was originally invented in the 1970s for managing and processing relational data. Back then, nobody could have guessed it todays popularity. Being half a century old, it might not be a surprise that SQL exposes a purely string based interface. 
+SQL is probably the oldest language with the most widespread adoption in recent years due to the rise of big data. It was originally invented in the 1970s for managing and processing relational data. Back then, nobody could have guessed its todays popularity. Being half a century old, it might not be a surprise that SQL exposes a purely string based interface.
 
-In contrast, Spark's DataFrameAPI is embedded in general purpose languages like python or java. Interestingly, these languages first came into existance roughly 20 years later than SQL. While SQL formulates concepts like tables, projections, filters and transformations as pure text, the DataFrameAPI maps these into objects within the embedding programming language. More concretely, entities like tables (aka dataframes) gain an explict object representation with attributes (e.g. column names and dtypes) and methods (eg. filter, join and aggregate). Hence, it is called a DataFrame *Application Programming Interface* (API) because it allows to directly interact with a dataframe while leveraging the full functionality and flexibility of the embedding programming language. 
+In contrast, Spark's DataFrameAPI is embedded in general purpose languages like Python or Java. Interestingly, these languages first came into existance roughly 20 years later than SQL. While SQL formulates concepts like tables, projections, filters and transformations as pure text, the DataFrameAPI maps these into objects within Python or Java. More concretely, entities like tables (aka dataframes) gain an explict object representation with attributes (e.g. column names and dtypes) and methods (eg. filter, join and aggregate). Hence, it is called a DataFrame *Application Programming Interface* (API) because it allows to directly interact with a dataframe while leveraging the full functionality and flexibility of the embedding programming language. 
 
-Having this distinction between DataFrameAPI and SQL interfaces in mind, let's focus on the implications of it. 
-
+Let's keep this distinction in mind while focussing on its implications.  
 
 Managing complexity
 -------------------
 
-Data pipelines often inherit complexity from demands like time series analysis. This typically inludes multiple joins, groupby-aggregates, sophisticated window functions and more. Handling such complexity is a difficult task and asks for simplification via appropriate abstractions.
+Data pipelines often inherit complexity from business demands like time series analysis. This typically inludes multiple joins, groupby-aggregates, sophisticated window functions and more. Handling such complexity is a difficult task and asks for simplification via appropriate abstractions.
 
 Since DataFrameAPI is embedded in a programming language, it allows to leverage software engineering concepts such as inheritance, composition, introspection and higher order functions. More concretely, this enables data engineers to structure, reuse and dynamically generate building blocks of data pipelines. These techniques can be seen as a toolbox to create abstractions to handle complexity in transformation demands.
 
