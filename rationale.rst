@@ -10,34 +10,34 @@ representation. It has bindings for Python, Java and R.
 Spark's DataFrameAPI vs. (cloud) native SQL Interfaces
 ======================================================
 
-This article is intended for data analysts, scientists, engineers and related professions such as solution architects. It is an opiniated comparison between Spark's DataFrameAPI and cloud native SQL interfaces (e.g. Snowflake, Redshift, Athena and alike). It outlines benefits of Spark's DataFrameAPI in contrast to seemingly more easier to use cloud native SQL engines. By the end of the article, you will be challenged to think about why Spark's DataFrameAPI and native SQL interfaces are complementary.
+This article is intended for data analysts, scientists, engineers and related professions such as solution architects. It is an opiniated comparison between Spark's DataFrameAPI and cloud native SQL interfaces (e.g. Snowflake, Redshift, Athena and alike). It does not reiterate on the shortcomings of the SQL language itself which has already been extensively discussed by others (https://www.edgedb.com/blog/we-can-do-better-than-sql). Rather, it outlines benefits of Spark's DataFrameAPI in contrast to seemingly more easier to use text based SQL. By the end of the article, you will be challenged to think about why Spark's DataFrameAPI and native SQL interfaces are complementary and where each has its justification.
 
 DataFrameAPI and SQL
 --------------------
 
-Let's first focus on the relevant distinction between the DataFrameAPI and SQL interface. While both are used to express data processing logic, they differ in the way they formulate ETL/ELT tasks.
+Let's first focus on the relevant distinction between the DataFrameAPI and SQL interface. While both are used to express data processing logic, they differ in the way they formulate ETL/ELT pipelines.
 
-SQL is probably the oldest language with the most widespread adoption in recent years due to the rise of big data. It was originally invented in the 1970s for managing and processing relational data. Back then, nobody could have guessed its todays popularity. Being half a century old, it might not be a surprise that SQL exposes a purely string based interface.
+SQL is probably the oldest language with the most widespread adoption in recent years due to the rise of big data. It was originally invented in the 1970s for managing and processing relational data. Back then, nobody could have guessed its todays popularity. Being half a century old, it might not be a surprise that SQL exposes a purely string based interface. While ORMs and related frameworks have developed over time as higher level abstractions to generate SQL, it is still mostly written in plain text by most practioners in production environments today. 
 
-In contrast, Spark's DataFrameAPI is embedded in general purpose languages like Python or Java. Interestingly, these languages first came into existance roughly 20 years later than SQL. While SQL formulates concepts like tables, projections, filters and transformations as pure text, the DataFrameAPI maps these into objects within Python or Java. More concretely, entities like tables (aka dataframes) gain an explict object representation with attributes (e.g. column names and dtypes) and methods (eg. filter, join and aggregate). Hence, it is called a DataFrame *Application Programming Interface* (API) because it allows to directly interact with a dataframe while leveraging the full functionality and flexibility of the embedding programming language. 
+In contrast, Spark's DataFrameAPI is embedded in general purpose languages like Python or Java. Interestingly, these languages first came into existance roughly 20 years later than SQL. While SQL formulates concepts like tables, projections, filters and transformations as pure text, the DataFrameAPI maps these into classes. More concretely, entities like tables (aka dataframes) gain an explict object representation with attributes (e.g. column names and dtypes) and methods (eg. filter, join and aggregate). Hence, it is called a DataFrame *Application Programming Interface* (API) because it allows to directly interact with a dataframe while leveraging the full functionality and flexibility of the embedding programming language. 
 
-Let's keep this distinction in mind while focussing on its implications.  
+Next, let's focus on the implications that can be derived from the distinction of a plain text interface versus a programming language interface.  
 
 Managing complexity
 -------------------
 
-Data pipelines often inherit complexity from business demands like time series analysis. This typically inludes multiple joins, groupby-aggregates, sophisticated window functions and more. Handling such complexity is a difficult task and asks for simplification via appropriate abstractions.
+Data pipelines often inherit complexity from business demands like time series analysis. This typically inludes multiple joins, aggregations, sophisticated window functions and more. Handling such complexity is a difficult task and asks for simplification via appropriate abstractions.
 
-Since DataFrameAPI is embedded in a programming language, it allows to leverage software engineering concepts such as inheritance, composition, introspection and higher order functions. More concretely, this enables data engineers to structure, reuse and dynamically generate building blocks of data pipelines. These techniques can be seen as a toolbox to create abstractions to handle complexity in transformation demands.
+Since DataFrameAPI is embedded in a programming language, it allows to leverage software engineering concepts such as inheritance, composition, introspection and higher order functions. More concretely, this enables data engineers to structure, reuse and dynamically generate building blocks of data pipelines. These techniques are the toolbox to create abstractions to handle complexity.
 
-In contrast, an SQL-only interface is not embedded in a programming language and remains string based. Therefore, the before mentioned programming techniques can't be applied. Due to the lack of abstraction, SQL statements often tend to result in complex, cluttered and hard to reason strings. 
+In contrast, the standard SQL interface is not embedded in a programming language and remains string based. Therefore, the before mentioned programming techniques can't be applied. Due to the lack of abstraction, SQL statements often tend to result in complex, cluttered and hard to reason strings. 
 
-Frameworks like dbt, matillion and others address this shortcomings by delegating SQL string generation to function like abstractions. However, they do not solve the core problem of missing a proper object representatio as they do not have an inherent understanding of what objects they deal with.
+Frameworks like dbt, matillion and others address this shortcomings by delegating SQL string generation to function like abstractions. However, they do not solve the core problem of missing a proper object representation as they do not have an inherent understanding of what objects they deal with.
 
 Testing
 -------
 
-Since Spark's DataFrameAPI is embedded in a programming language, rich testing frameworks like pytest can be leveraged for great versatility to:
+Since Spark's DataFrameAPI lives within the wider ecosystem of a programming language like python, rich testing frameworks such as pytest can be leveraged for great versatility to:
 
 - dynamically generate tests via parametrization
 - combine and manage tests into categories via marks
@@ -45,18 +45,18 @@ Since Spark's DataFrameAPI is embedded in a programming language, rich testing f
 - provide meaningful differences in failed tests
 - centrally collect test results and rerun failed tests
 
-Accordingly, data engineers can develop unit tests on individual transformations or integration tests on entire piplelines to ensure semantic correctness of the data pipeline. Moreover more sophisticated techniques like property-based or mutation testing help to cover edge cases. Once the test suite is set up, refactorings can be safely done. 
+Accordingly, data engineers can develop unit tests on individual transformations or integration tests on entire piplelines to ensure semantic correctness of the data pipeline (also known as logic tests). Moreover more sophisticated techniques like property-based or mutation testing help to cover edge cases. Once the test suite is set up, refactorings can be safely done. 
 
-In addition, spark can be run locally in a standalone mode on a developer's machine or in a continuous integration (CI) environment. Taken together, this allows software engineering best practices to be applied on the development of data pipelines.
+Drastically, there is no dedicated testing framework in the sql space. This is actually not specific to cloud based SQL engines but is valid for SQL databases in general. Dbt attempts to solve some of these issues while providing a minimal testing framework. However, this is in no sense comparable with a dedicated testing framework like pytest. Moreover, dbt tests mainly focus on shape, integrity and related data quality measures (also known as data tests). It can be further extented with ``great expectations`` which offers a huge suite of additional tests. However, it still fails to test the semantic correctness of a data pipeline.
 
-In contrast, there does not seem to be a competitive equivalent in the cloud native sql space. Many SQL engines cannot be run locally or in a CI environment without cloud access. Each time you test, you need to spin up cloud compute. Each time you test, you will likely need to create lots of temporary input and output tables. Cloud SQL testing is both slower and likely more expensive than local or CI based testing.
+In addition, spark can be run locally in a standalone mode on a developer's machine or in a continuous integration (CI) environment. In contrast, there does not seem to be a competitive equivalent in the cloud native sql space. Many SQL engines cannot be run locally or in a CI environment without cloud access. Each time you test, you need to spin up cloud compute. Each time you test, you will likely need to create lots of temporary input and output tables. Cloud SQL testing is both slower and likely more expensive than local or CI based testing.
 
-More drastically, there is no dedicated testing framework in the sql space (this is not specific to cloud based sql engines but is valid for sql engines in general). Dbt attempts to solve some of these issues while providing a minimal testing framework. However, this is in no sense comparable with a dedicated testing framework like pytest. Moreover, dbt tests mainly focus on shape, integrity and related data quality measures (e.g. not null). It can be further extented with ``great expectations`` which offers a huge suite of additional tests. However, it still fails to test the semantic correctness of a data pipeline.
+Software development's best practices can be natively applied at Spark's DataFrameAPI while they are difficult to employ with SQL.
 
 Debugging
 ---------
 
-Finding and solving bugs in a spark data pipeline follows the same principle as in traditional software development. Using a debugger within your favourite IDE allows you to step through every line of your code while being able to interactively follow and modify the state of the data pipeline for full observability. Even though Spark's execution model is lazy, you can always use a ``show`` or ``toPandas`` on intermediate dataframe representations to inspect results.
+With increasing complexity, errors and wrong results will eventually occur sooner or later. Finding and solving bugs in a spark data pipeline follows the same principle as in traditional software development. Using a debugger of one's favourite IDE allows to step through every line of your code while being able to interactively follow and modify the state of the data pipeline for full observability. Even though Spark's execution model is lazy, you can always use a ``show`` or ``toPandas`` on intermediate dataframe representations to inspect results.
 
 This is not possible with SQL. For Spark's DataFrameAPI, the smallest observable unit is a line of code or dataframe statement. For SQL, the smallest observable unit is a complete view or table. Accordingly, to properly debug in SQL, one needs to create lots of intermediate views or tables which is both a manual and tedious process.
 
@@ -86,17 +86,15 @@ can be explicitly stored via ``cache`` to prevent expensive re-computations.
 Last but not least, join strategies may directly provided via join hints
 (e.g. broadcast joins).
 
-Required skill
---------------
+Required skill and ease of use
+------------------------------
 
-The advantages of Spark's DataFrameAPI do not come for free. In contrast to SQL, Spark demands for more software development abilites. For example, proficiency in a programming language is mandatory. Setting up tests for spark on a local machine and in CI can be difficult in the beginning, too. 
+The above mentioned advantages of Spark's DataFrameAPI do not come for free. In contrast to SQL, Spark's DataFrameAPI requires proficiency in a programming language. Setting up tests for spark on a local machine and in CI can be difficult at first. Moreover, Spark forces its users to explicitly think about its distributed computation and lazy execution model to effectively make use of parellism and caching. This is hidden and abstracted away in SQL. Last but not least, setting up a Spark cluster is still more complicated and requires more thought than using native SQL compute backends even though this has greatly improved via managed services such as AWS Glue and Databricks.
 
-Moreover, spark forces its developer to explicitly think about its distributed computation model to effectively make use of parellism and caching. This is hidden in SQL.
+Best of both worlds
+-------------------
 
-Conclusion
-----------
-
-While SQL is the lingua franca for data analysis, it might not be the best choice for everything. SQL is great for dashboarding and BI use cases with simple queries for which the DataFrameAPI is rather over-engineered. However, business critical data pipelines with high complexity and volume are better suited for a DataFrameAPI interface because:
+While SQL is the lingua franca for data analysis, it might not be the best choice for everything. SQL is great for dashboarding and BI use cases with simple queries for which the DataFrameAPI is rather over-engineered. However, business critical data pipelines with high complexity and volume are better suited to be implemented via a DataFrameAPI interface because:
 
 - complexity can be handled with well established concepts from software engineering
 - semantic correctness can be guaranteed with dedicated testing frameworks
